@@ -6,16 +6,8 @@ DOI for the source code: 10.5281/zenodo.4725218
 
 Correspondence: moein.khalighi@utu.fi
 
-The following source files in the paper with the code included in the Supplementary Information of the article.
-
-These files need to be placed in the folder 
-
-In addition to these files, 
-
-Some computations can take a long time (several hours) to complete 
-
-
-We have three code sources named *3specis*, *NSpecies*, *Ternary*, *FigureS1*, and *FigureS3*. 
+Besides results shown in the paper, one can apply the method for arbitrary settings by using the code sources named *3specis* and *NSpecies*.
+ 
 --------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------
 ## 3specis
@@ -49,40 +41,5 @@ We have three code sources named *3specis*, *NSpecies*, *Ternary*, *FigureS1*, a
   * **x0Equilibrium.mat**       # Initial conditions are the fixed points when Interaction='Random', n=4, ki=1*ones(N,1), and Perturbation='Pulse'
 --------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------
-## Ternary
-
- ### README.md              # project overview
-
- ### Main_Ternary.m      # Run this code
-
- *  **Method3.m**            # Numerical methods for the model under given perturbations
- *  **FDE_PI12_PC.m**        # solver for fractional differential equation  
---------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------
-## FigureS1
-
- ### README.md              # project overview
-
- ### PanelA.m      # Run this code
- ### PanelB.m      # Run this code
- ### PanelC.m      # Run this code
- ### PanelD.m      # Run this code
-
- *  **fun3.m**            # ODE function (an extension of generalized Lotka Volterra)
- *  **FDE_PI12_PC.m**        # solver for fractional differential equation  
- *  **hex2rgb.m**            # Converts hex color values extracted from [online colorblindness simulation tool](https://davidmathlogic.com/colorblind) to rgb arrays on the range 0 to 1 for plots
- *  **braycd.m**          # Bray Curtis distance
- * **Kijfig3e.mat**           # Matrix interaction randomly generated for 10 random communities
- * **X0(n)**                  # 10 equilibrium initial values corresponding to the 10 generated random communities 
---------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------
-## FigureS3
-
- ### README.md              # project overview
-
- ### Main.m      # Run this code
-
- *  **fun.m**            # ODE function (an extension of generalized Lotka Volterra)
- *  **FDE_PI12_PC.m**        # solver for fractional differential equation  
 
  

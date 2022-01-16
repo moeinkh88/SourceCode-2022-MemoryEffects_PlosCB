@@ -41,8 +41,6 @@
 %        t - Simulated time interval
 %        x - Species abundances 
 %        B - Growth rates including perturbation
-%---------------------------------------
-% Moein Khalighi - September 2020
 %
 %
 %  Please, report any problem or comment to :
