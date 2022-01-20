@@ -1,0 +1,15 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Quantifying the impact of ecological memory on the
+  dynamics of interacting communities
+message: 'If you use this software, please cite it as below.'
+type: software
+authors:
+  - given-names: Moein
+    family-names: Khalighi
+    email: moein.khalighi@utu.fi
+    affiliation: university of Turku
+    orcid: 'https://orcid.org/0000-0001-8176-0367'
