@@ -1,56 +1,164 @@
-%% BT CH
-clear 
+clear
 clc
+global n N b Ki Kij 
+
+n=2; % Hill coefficient
+N=15; % number of species
+
+Kij=.2*ones(N); 
+% Blue=1:10;Red=11:20;Green=21:30;
+Blue=1:5;Red=6:10;Green=11:15;
+
+%%%
+Ki=.5*ones(N,1); % death rate
+t0=0; T=1000; % t0 is start time, and T is the end time
+
+s = RandStream('twister','Seed',123);
+    RandStream.setGlobalStream(s)
+    
+b=.1.*abs(randn(1,N)) + 1; % growth rate
+
+x0=ones(N,1)/4; % initial conditions (1/4)
+
+alpha=ones(N,1); % order of derivatives
+
+h=0.05; % step size for computing
+
+[t, x] = FDE_PI12_PC(alpha,@fun,t0,T,x0,h);
+
+
 %%
-global A mu
 
-order1=1:-.01:.9;
-order2=1:-.01:.9;
-X0= [0.158; 0.8];
-mu=[.626 0.468];
+% defining blindfriendly colors (red and green)
+PcR= [0.92,0.27,0.18];
+PcG= [0.18,0.40,0.14];
 
-t0=0;
-T=1700;
-h=.1;
-F=@fun;
-JF=@Jfun;
-
-A=[-0.9597 -0.0727; -0.5906 -1.242];
-
-%% fix points
-xx1=[(A(1,2)*mu(2)-A(2,2)*mu(1))/(A(1,1)*A(2,2)-A(1,2)*A(2,1)),...
-    (A(2,1)*mu(1)-A(1,1)*mu(2))/(A(1,1)*A(2,2)-A(1,2)*A(2,1))];
-xx2=flip(xx1);
-xx3=[0,-mu(2)/A(2,2)];
-xx4=[-mu(1)/A(1,1),0];
-
-x12=[xx1;xx2;xx3;xx4];
-
-% Jac=JF(1,[x1,x2]);
-% eig(Jac);
-
-M1=length(order1);
-M2=length(order2);
-ConvergT=zeros(M1,M2);
-for i=1:M1
-    for j=1:M2
-[t,X]=FDE_PI2_IM([order1(i),order2(j)],F,JF,t0,T,X0,h);
-
-Err=braycd(X(:,end),x12');
-[~,indFix]=min(Err);
-
-indx=find(braycd(X,x12(indFix,:)')<1e-3);
-ConvergT(i,j)=t(indx(1));
-    end
+for i=1:N
+    Kij(i,i)=0;
 end
 
-%%
+xx=x./(ones(N,1)*sum(x));
+% xx=x;
+
 figure
 
-h=heatmap(1-order1,1-order2,ConvergT');
-h.XLabel = 'Memory of BT';
-h.YLabel = 'Memory of CH';
+subplot(1,3,1)
+% pb=semilogx(t,x(Blue,:),'b');
+pb=plot(t(1:20:end),xx(Blue,1:20:end),'b');
+set(pb,'LineWidth',2)
+hold on
+% pr=semilogx(t,xx(Red,:));
+pr=plot(t(1:20:end),xx(Red,1:20:end));
+set(pr,'LineWidth',2,'color',PcR)
+% pg=semilogx(t,xx(Green,:));
+pg=plot(t(1:20:end),xx(Green,1:20:end));
+set(pg,'LineWidth',2,'color',PcG)
+% line([t0 T],[0.5,0.5],'LineStyle','--', 'color', 'k')
+hold off
+xlabel('Time','FontSize',15)
+ylabel('Abundance','FontSize',15) 
+% title(['Memory_{B}=',num2str(1-alpha(1)),', Memory_{R}=',num2str(1-alpha(6)),...
+%     ', Memory_{G}=',num2str(1-alpha(15)),...
+%     '\newline X_{B}(0)=',num2str(x0(1)),', X_{R}(0)=',num2str(x0(6)),...
+%     ', X_{G}(0)=',num2str(x0(11))],'FontSize',14)
+title(['Memory_{B}=',num2str(1-alpha(1)),', Memory_{R}=',num2str(1-alpha(6)),...
+    ', Memory_{G}=',num2str(1-alpha(15))],'FontSize',14)
+set(gca,'Fontsize',15)
 
-ax = gca;
-axp = struct(ax);       %you will get a warning
-axp.Axes.XAxisLocation = 'top';
+set(gcf,'renderer','Painters')
+
+axis tight
+%%
+alpha(Blue)=1; alpha(Red)=.4;alpha(Green)=.7;
+
+h=0.05; % step size for computing
+
+[t, x] = FDE_PI12_PC(alpha,@fun,t0,T,x0,h);
+
+
+%%
+
+% defining blindfriendly colors (red and green)
+PcR= [0.92,0.27,0.18];
+PcG= [0.18,0.40,0.14];
+
+for i=1:N
+    Kij(i,i)=0;
+end
+
+xx=x./(ones(N,1)*sum(x));
+% xx=x;
+
+subplot(1,3,2)
+% pb=semilogx(t,x(Blue,:),'b');
+pb=plot(t(1:20:end),xx(Blue,1:20:end),'b');
+set(pb,'LineWidth',2)
+hold on
+% pr=semilogx(t,xx(Red,:));
+pr=plot(t(1:20:end),xx(Red,1:20:end));
+set(pr,'LineWidth',2,'color',PcR)
+% pg=semilogx(t,xx(Green,:));
+pg=plot(t(1:20:end),xx(Green,1:20:end));
+set(pg,'LineWidth',2,'color',PcG)
+% line([t0 T],[0.5,0.5],'LineStyle','--', 'color', 'k')
+hold off
+xlabel('Time','FontSize',15)
+ylabel('Abundance','FontSize',15) 
+% title(['Memory_{B}=',num2str(1-alpha(1)),', Memory_{R}=',num2str(1-alpha(6)),...
+%     ', Memory_{G}=',num2str(1-alpha(15)),...
+%     '\newline X_{B}(0)=',num2str(x0(1)),', X_{R}(0)=',num2str(x0(6)),...
+%     ', X_{G}(0)=',num2str(x0(11))],'FontSize',14)
+title(['Memory_{B}=',num2str(1-alpha(1)),', Memory_{R}=',num2str(1-alpha(6)),...
+    ', Memory_{G}=',num2str(1-alpha(15))],'FontSize',14)
+set(gca,'Fontsize',15)
+
+set(gcf,'renderer','Painters')
+
+axis tight
+%%
+alpha(Blue)=.5; alpha(Red)=.6;alpha(Green)=1;
+
+h=0.05; % step size for computing
+
+[t, x] = FDE_PI12_PC(alpha,@fun,t0,T,x0,h);
+
+
+%%
+
+% defining blindfriendly colors (red and green)
+PcR= [0.92,0.27,0.18];
+PcG= [0.18,0.40,0.14];
+
+for i=1:N
+    Kij(i,i)=0;
+end
+
+xx=x./(ones(N,1)*sum(x));
+% xx=x;
+
+subplot(1,3,3)
+% pb=semilogx(t,x(Blue,:),'b');
+pb=plot(t(1:20:end),xx(Blue,1:20:end),'b');
+set(pb,'LineWidth',2)
+hold on
+% pr=semilogx(t,xx(Red,:));
+pr=plot(t(1:20:end),xx(Red,1:20:end));
+set(pr,'LineWidth',2,'color',PcR)
+% pg=semilogx(t,xx(Green,:));
+pg=plot(t(1:20:end),xx(Green,1:20:end));
+set(pg,'LineWidth',2,'color',PcG)
+% line([t0 T],[0.5,0.5],'LineStyle','--', 'color', 'k')
+hold off
+xlabel('Time','FontSize',15)
+ylabel('Abundance','FontSize',15) 
+% title(['Memory_{B}=',num2str(1-alpha(1)),', Memory_{R}=',num2str(1-alpha(6)),...
+%     ', Memory_{G}=',num2str(1-alpha(15)),...
+%     '\newline X_{B}(0)=',num2str(x0(1)),', X_{R}(0)=',num2str(x0(6)),...
+%     ', X_{G}(0)=',num2str(x0(11))],'FontSize',14)
+title(['Memory_{B}=',num2str(1-alpha(1)),', Memory_{R}=',num2str(1-alpha(6)),...
+    ', Memory_{G}=',num2str(1-alpha(15))],'FontSize',14)
+set(gca,'Fontsize',15)
+
+set(gcf,'renderer','Painters')
+
+axis tight

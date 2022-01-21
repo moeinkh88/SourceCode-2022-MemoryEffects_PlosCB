@@ -1,145 +1,147 @@
-%% Main_ThreeSpecies
-%        ------------------------------------------------------------------
-%                   This code solves a there species microbial community model
+%% Main_Ternary
+% -------------------------------------------------------------------------
+%                   This code several times solves an N species microbial community model
 %                   described by fractional differential equations:
-%                   D^mu(Xi)=X_i(bi.Fi-ki.Xi)
+%                   D^mu(Xi)=Xi(bi.Fi-ki.Xi)
 %                   where Fi=\prod[Kik^n/(Kik^n+Xk^n)], k=1,...,N and k~=i
-%                   D is the fractional Caputo derivative and mu is its order  
-%
+%                   D is the fractional Caputo derivative and mu is its order                          
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Inputs                   
+% Inputs               
+%        Number - Number of times the problem will be solved; e.g. Number=50
 %        ------------------------------------------------------------------
-%        mu - Order of derivatives, [mu_B,mu_R,mu_G]  0<mu(i)=<1, e.g. mu=[1,.2,1];
+%        mu - Order of derivatives, e.g. mu=ones(1,N);  % 1-Memory
+%                                        Or
+%                                        mu(Blue)=0.6; %  1-Memory_B
+%                                        mu(Red)=1;      %  1-Memory_R
+%                                        mu(Green)=1;    %  1-Memory_G 
 %        ------------------------------------------------------------------
-%        n -  Hill coefficient, e.g. n=2;
+%        n -  Hill coefficient, e.g. n=2;                              
 %        ------------------------------------------------------------------
-%        N -  Number of Species, e.g. N=3;
+%        N -  Number of Species (N=3k for specifying to 3 groups), e.g. N=15;
+%        ------------------------------------------------------------------    
+%        Kin - intra-group inhibition for Matrix interaction Kij e.g. Kin=1;
+%        Kout - inter-group inhibition for Matrix interaction Kij, e.g. Kout=0.6;
 %        ------------------------------------------------------------------
-%        Kij - Interation matrix, e.g. Kij=0.1*ones(N);
+%        Ki - Death rate, e.g. Ki=1*ones(N,1); 
 %        ------------------------------------------------------------------
-%        Ki - Death rate, e.g. Ki=1*ones(N,1);
+%        T - Final time, e.g. T=700;
+%        t0 - Initial time, e.g. t0=0;
 %        ------------------------------------------------------------------
-%        T - Final time, e.g. T=600;
-%        ------------------------------------------------------------------
-%        x0 - Initial conditions, e.g. x0=[1/3;1/3;1/3];
-%        ------------------------------------------------------------------
-%        Perturbation - This is changes of the species growth rates, e.g. Perturbation='OUP';
-%                       Possible usages 'False', 'Pulse, 'Periodic', 'OUP', and 'OUP_new'                      
-%                       False: No perturbation
-%                       Pulse1: A pulse in (20,60) for Figure 2a
-%                       Pulse2: Similar to Pulse1 with a greater strength for Figure 2b
-%                       Pulse3: Two pulses in (60,100) and (200,330) for Figure 3a
-%                       Pulse4: Two pulses in (60,100) and (400,530) for Figure S2a
-%                       Periodic: Periodic perturbation with 20 span for Figure 3b
-%                       OUP: Stochastic pertubation used in the paper; requirement: T=<700, For Figure 4b-c & S2b                          
-%                       OUP_new: New generating stochastic perturbation
-%        ------------------------------------------------------------------
-%        b - Growth rates for cases: False, Pulse, and Periodic, e.g. b=[1, .95, 1.05];
+%        h - time step size for computing, e.g. h=0.01; 
+%--------------------------------------------------------------------------
 %
-%---------------------------------------
+%*NOTE* No need to define the grwoth rates (b) and initial values (x0). 
+%       They are generated randomly for each sample in 'method3' by:
+%       b=ones(N,1)+.1*randn(N,1); % growth rate
+%       x0=.1*rand(N,1); % initial conditions
+%-----------------------------------
 % Outputs
-%        t - Simulated time interval
-%        x - Species abundances 
-%        B - Growth rates including perturbation
+%        Ternary plot showing steady state distribution of several samples
+%-----------------------------------
+% Moein Khalighi - September 2020
 %
 %
 %  Please, report any problem or comment to :
 %          moein dot khalighi at utu dot fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear 
+clear
 clc
-global n N Ki b Kij 
+global n N Ki
+
 %% Coefficients and Conditions
 
-mu1=[1,1,1-.09105]; % [mu_B,mu_R,mu_G] Order of derivatives,  0<mu(i)=<1
-mu2=[1,1,1-.2];
+%number of samples
+Number=50; 
 
-n=2; % Hill coefficient
+% Hill coefficient
+n=2; 
 
-N=3; % number of species
+% number of species
+N=15; 
 
-Kij=0.1*ones(N); % interaction matrix
+% dividing to 3 groups if N is a multiplie of 3
+N3=N/3; 
+Blue=1:N3;Red=N3+1:2*N3;Green=2*N3+1:3*N3;
 
-Ki=1*ones(N,1); % death rate
+% cells of interaction matrix
+Kin=1; % intra-group inhibition
+Kout=.6; % inter-group inhibition
 
-T=700; %  final time
+% death rate
+Ki=1*ones(N,1); 
 
-Perturbation='OUP'; % Possible usages 'False', 'Pulse1', 'Pulse2', 'Pulse3', 'Pulse4', 'Periodic', 'OUP', and 'OUP_new'
+% t0=start time, T=the final time
+t0=0; T=300; 
 
-b=[1, .95, 1.05]; % growth rates for cases: False, Pulse, and Periodic
+% time step size for computing
+h=0.01; 
 
-x01=[.99,.01,.01]'; % initial conditions
-x02=1/3*[1,1,1]'; % initial conditions
+%% Computation
 
-Fun1=@fun14;
-Fun2=@fun3;
-        clear b        
-        load('b3OUP.mat');
-        bb=@(t,N)b(t,N);
-        B=b;
-        
-        t0=0; % initial time
-h=0.01; % step size for computing
+% order of derivatives
+mu=ones(N,1);
+
+ind=[1;0.9;0.6];
+Indx=permn(ind,3);
+figure
+
+for J=1:length(Indx)
+mu(Blue)=Indx(J,1); % 1-Memory_B; For other species: mu(Red)=1-Memory_R, mu(Green)=1-Memory_G;
+mu(Red)=Indx(J,2); % 1-Memory_B; For other species: mu(Red)=1-Memory_R, mu(Green)=1-Memory_G;
+mu(Green)=Indx(J,3); % 1-Memory_B; For other species: mu(Red)=1-Memory_R, mu(Green)=1-Memory_G;
+
+[b,r,g]=method3(mu,t0,T,h,Number,Kout,Kin,Blue,Red,Green);
 
 
-% solver for fractional differential equation
-[t, x1] = FDE_PI12_PC(mu1,Fun1,t0,T,x01,h);
-[~, x2] = FDE_PI12_PC(mu2,Fun2,t0,T,x02,h);
-%% plotting
+%%plotting
 
-   %%plotting relative abundance of species
-    figure
-     f = [1 2 3 4];
-    v = [60 0; 100 0; 100 1; 60 1];
-    v1 = [400 0; 530 0; 530 1; 400 1];
-    h1=patch('Faces',f,'Vertices',v,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
-    hold on
-    h2=patch('Faces',f,'Vertices',v1,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.36);
-    
-    RelX1=x1./(ones(N,1)*sum(x1)); % Relative abundances
-    
-    % Plot the relative abundances
-    p=plot(t,RelX1(1,:),'b',t,RelX1(2,:),'r',t,RelX1(3,:),'g');
-    
-    % Remove highlighted bars from the legend
-    set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
-    set(get(get(h2,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
-       ylabel('Relative abundance')
-xlabel('Time')
+%% pie chart
 
-set(p,'LineWidth',5)
-set(gca,'FontSize',23, 'FontWeight', 'bold')
-xlabel('Time')
-%        ------------------------------------------------------------------
+subplot(9,9,3*J-1:3*J)
 
-%%
-RelX2=x2./(ones(N,1)*sum(x2)); % Relative abundances
-
-f=figure;
-f.Renderer='painters';
-
-% defining blindfriendly colors (red and green)
 PcR= [0.92,0.27,0.18];
 PcG= [0.18,0.40,0.14];
-     
-   %%plotting relative abundance of species
-       
-            p=plot(t,RelX2(1,:),'b',t,RelX2(2,:),'r',t,RelX2(3,:),'g');
-       ylabel('Relative abundance')
+ax = gca(); 
+pieData = [.3 .4 .3]; 
+hh=pie(ax,[mean(b), mean(r), mean(g)]);
+
+newColors = [[0,0,1];PcR;PcG];
+
+patchHand = findobj(hh, 'Type', 'Patch'); 
+% Set the color of all patches using the nx3 newColors matrix
+set(patchHand, {'FaceColor'}, mat2cell(newColors, ones(size(newColors,1),1), 3))
+% Or set the color of a single wedge
+patchHand(1).FaceColor = 'b';
+patchHand(2).FaceColor = PcR;
+patchHand(3).FaceColor = PcG;
+
+% title('Propotion of abundance', 'fontsize',18)
+
+set(findobj(hh,'type','text'),'fontsize',12);
+%% Bar plots
 
 
-% Settings for the general plot
-set(p,'LineWidth',5)
-set(gca,'FontSize',23, 'FontWeight', 'bold')
-xlabel('Time')
+subplot(9,9,3*J-2)
 
-% % Generate legend for showing memory of each species
-legend(['X_{B}/X_{total}, Memory_B=',num2str(1-mu2(1))],...
-    ['X_{R}/X_{total}, Memory_R=',num2str(1-mu2(2))],...
-    ['X_{G}/X_{total}, Memory_G=',num2str(1-mu2(3))],'Location', 'Best');
-
-
-
-
-
+for i = 1:3    
+            if i==1
+                            p1(i)=bar(i,1-mu(1));
+                            hold on
+                set(p1(i),'FaceColor','b');
+            elseif i==2         
+                            p1(i)=bar(i,1-mu(6));
+                set(p1(i),'FaceColor',PcR);
+            elseif i==3
+                            p1(i)=bar(i,1-mu(15));
+                set(p1(i),'FaceColor',PcG);                
+            end
+end
+  axis([.5 3+0.5 0 round(max(mu),1)])% adjusting axis
+      hold off      
+%                       ylabel('{Memory}','FontSize',18)
+                      set(gca,'FontSize',18)
+                      set(gca,'xticklabel',{})
+                      
+                      %%
+end

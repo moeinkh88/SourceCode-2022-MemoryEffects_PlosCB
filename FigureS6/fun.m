@@ -1,10 +1,21 @@
 function dx=fun(t,x)
 
-global A mu
+global b N Ki
 
-dx1= x(1)*(mu(1)+A(1,1)*x(1)+A(1,2)*x(2));
-dx2= x(2)*(mu(2)+A(2,1)*x(1)+A(2,2)*x(2));
+dx=zeros(N,1);
 
-dx=[dx1;dx2];
+for i=1:N
+dx(i)=x(i)*(b(i).*fi_Xk(i, x)-Ki(i).*x(i));
+end
 end
 
+function fi=fi_Xk(i, x)
+global n N Kij
+fi=1;
+K=1:N;K(i)=[];
+for j=1:N-1
+    k=K(j);
+fi=fi*(Kij(i,k).^n/(Kij(i,k).^n+x(k).^n));
+end
+
+end

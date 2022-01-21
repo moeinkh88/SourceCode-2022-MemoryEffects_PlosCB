@@ -1,4 +1,4 @@
-%% CH ER 
+%% BT CH
 clear 
 clc
 %%
@@ -6,17 +6,16 @@ global A mu
 
 order1=1:-.01:.9;
 order2=1:-.01:.9;
-X0= [0.4; 0.2];
-mu=[.468 0.151];
+X0= [0.158; 0.8];
+mu=[.626 0.468];
 
 t0=0;
-T=1600;
+T=1700;
 h=.1;
 F=@fun;
 JF=@Jfun;
 
-
-A=[-1.242 -.508; 1.191 -1.3219];
+A=[-0.9597 -0.0727; -0.5906 -1.242];
 
 %% fix points
 xx1=[(A(1,2)*mu(2)-A(2,2)*mu(1))/(A(1,1)*A(2,2)-A(1,2)*A(2,1)),...
@@ -40,17 +39,17 @@ for i=1:M1
 Err=braycd(X(:,end),x12');
 [~,indFix]=min(Err);
 
-indx=find(braycd(X(:,20/h:end),x12(indFix,:)')<1e-4);
-ConvergT(i,j)=t(indx(1))+20;
+indx=find(braycd(X,x12(indFix,:)')<1e-3);
+ConvergT(i,j)=t(indx(1));
     end
 end
 
 %%
-
 figure
+
 h=heatmap(1-order1,1-order2,ConvergT');
-h.XLabel = 'Memory of CH';
-h.YLabel = 'Memory of ER';
+h.XLabel = 'Memory of BT';
+h.YLabel = 'Memory of CH';
 
 ax = gca;
 axp = struct(ax);       %you will get a warning
