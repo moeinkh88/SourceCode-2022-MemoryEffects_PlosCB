@@ -1,4 +1,4 @@
-%% Main_Ternary
+%% Figure 5 panel c (Ternary)
 % -------------------------------------------------------------------------
 %                   This code several times solves an N species microbial community model
 %                   described by fractional differential equations:
@@ -49,10 +49,11 @@ clear
 clc
 global n N Ki
 
-%% Coefficients and Conditions
+%% Input 
+% Coefficients and Conditions
 
 %number of samples
-Number=5; 
+Number=50; 
 
 % Hill coefficient
 n=2; 
@@ -120,3 +121,7 @@ text(-.07,-.03,'X_{B}','FontSize',16)
 text(1.024,-.02,'X_{R}','FontSize',16)
 text(.4,.95,'X_{G}','FontSize',16)
 hold off
+
+title(['Memory_B=',num2str(1-mu(1)),...
+    ',  Memory_R=',num2str(1-mu(6)),...
+    ',  Memory_G=',num2str(1-mu(15))]);

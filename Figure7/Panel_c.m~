@@ -6,22 +6,19 @@ clc
 global A mu
 
 %% Inputs
-
-p=1:-.05:.8; %order of derivatives
+p=1:-.05:.8; %order of derivati
 
 % X0= [.28; .36];
-X0= [.3; .36]; % initial conditions
-mu=[0.599 0.626]; % growth rates
+X0= [.3; .36];
+mu=[0.599 0.626];
 
-t0=0; % Intial time
-T=2000; % Final time
-h=.1; % step size for computing
-F=@fun; % ODE funcion described by Venturelli et. al. (https://doi.org/10.15252/msb.20178157)
-JF=@Jfun; % Jacobian of ODE
+t0=0;
+T=2000;
+h=.1;
+F=@fun;
+JF=@Jfun;
 
-A=[-0.9059 -0.9377;-0.972 -0.9597]; % interaction coefficients
-
-%% solver for fractional differential equation
+A=[-0.9059 -0.9377;-0.972 -0.9597];
 
 for j=1:length(p)
     order=p(j)*ones(2,1);
@@ -30,10 +27,9 @@ X(j,:,:)=x;
 end
 
 
-%% plotting
+%%
 figure
 
-%relative abundances
 x1(:,:)=X(1,:,:)./sum(X(1,:,:));x1=x1(:,1:20:end);
 x2(:,:)=X(2,:,:)./sum(X(2,:,:));x2=x2(:,1:20:end);
 x3(:,:)=X(3,:,:)./sum(X(3,:,:));x3=x3(:,1:20:end);

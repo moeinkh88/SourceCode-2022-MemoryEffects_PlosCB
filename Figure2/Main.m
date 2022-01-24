@@ -1,4 +1,4 @@
-%% Main_ThreeSpecies
+%% Figure 2 
 %        ------------------------------------------------------------------
 %                   This code solves a there species microbial community model
 %                   described by fractional differential equations:
@@ -6,6 +6,7 @@
 %                   where Fi=\prod[Kik^n/(Kik^n+Xk^n)], k=1,...,N and k~=i
 %                   D is the fractional Caputo derivative and mu is its order  
 %
+%  For a article titled "Quantifying the impact of ecological memory on the dynamics of interacting communities"         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Inputs                   
 %        ------------------------------------------------------------------
@@ -23,7 +24,7 @@
 %        ------------------------------------------------------------------
 %        x0 - Initial conditions, e.g. x0=[1/3;1/3;1/3];
 %        ------------------------------------------------------------------
-%        b - Growth rates for cases: False, Pulse, and Periodic, e.g. b=[1, .95, 1.05];
+%        b - Growth rates (including pulse perturbations), e.g. b=[1, .95, 1.05];
 %
 %---------------------------------------
 % Outputs
@@ -40,10 +41,13 @@
 clear 
 clc
 global n N Ki b Kij T x0
-%% Coefficients and Conditions
 
-mu1=[1,1,1]; % [mu_B,mu_R,mu_G] Order of derivatives,  0<mu(i)=<1
-mu2=.9*[1,1,1];
+%% Inputs
+% Coefficients and Conditions
+
+% [mu_B,mu_R,mu_G] Order of derivatives,  0<mu(i)=<1
+mu1=[1,1,1];    % No memory
+mu2=.9*[1,1,1]; % With memory
 
 n=2; % Hill coefficient
 
@@ -55,28 +59,29 @@ Ki=1*ones(N,1); % death rate
 
 T=350; %  final time
 
-b=[1, .95, 1.05]; % growth rates for cases: False, Pulse, and Periodic
+b=[1, .95, 1.05]; % growth rates (Pulses are applied in fun1.m and fun12.m)
 
 x0=[.99;.01;.01]; % initial conditions
 
 t0=0; % initial time
 h=0.01; % step size for computing
 
-Fun1=@fun1;
-Fun2=@fun12;
+Fun1=@fun1;  % ODE model including a pulse for panel a 
+Fun2=@fun12; % ODE model including a pulse for panel b
   
 % solver for fractional differential equation
-[t1, x1] = FDE_PI12_PC(mu1,Fun1,t0,T,x0,h);
-[t2, x2] = FDE_PI12_PC(mu2,Fun1,t0,T,x0,h);
-[~, x12] = FDE_PI12_PC(mu1,Fun2,t0,T,x0,h);
-[~, x22] = FDE_PI12_PC(mu2,Fun2,t0,T,x0,h);
+[t1, x1] = FDE_PI12_PC(mu1,Fun1,t0,T,x0,h); % results for panel a, no memory
+[t2, x2] = FDE_PI12_PC(mu2,Fun1,t0,T,x0,h); % results for panel a, with memory
+[~, x12] = FDE_PI12_PC(mu1,Fun2,t0,T,x0,h); % results for panel b, no memory
+[~, x22] = FDE_PI12_PC(mu2,Fun2,t0,T,x0,h); % results for panel b, with memory
 %% plotting
 
 % defining blindfriendly colors (red and green)
 PcR= [0.92,0.27,0.18];
 PcG= [0.18,0.40,0.14];
 
-%%     
+%%     plotting
+
 f1=figure;
 f1.Renderer='painters';
 
@@ -85,7 +90,7 @@ tt=t1;
 subplot(2,3,1)
 %plot of growth rates
     ttb=0:.1:T;Nt=length(ttb); % time simulating with 0.1 step size
-%         
+         
 %     % Simulate growth rates with pulse
     BB=zeros(1,Nt);RR=zeros(1,Nt);GG=zeros(1,Nt);
     for i=1:Nt
@@ -107,10 +112,10 @@ ff1 = [1 2 3 4];
         % Remove highlighted bars from the legend
     set(get(get(h2,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
         set(gca,'YScale','log')
-    pb1=semilogy(ttb,BB,'Color',[0,0,1],'LineWidth',4);
+    semilogy(ttb,BB,'Color',[0,0,1],'LineWidth',4);
     hold on
-    pb2=semilogy(ttb,RR,'Color',PcR,'LineWidth',4);
-    pb3=semilogy(ttb,GG,'Color',PcG,'LineWidth',4);
+    semilogy(ttb,RR,'Color',PcR,'LineWidth',4);
+    semilogy(ttb,GG,'Color',PcG,'LineWidth',4);
 %     Settings for plot
 axis tight
     
@@ -159,7 +164,6 @@ yticklabels({'-2','-1','0'})
 %     set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
 
 % hleg1=legend('show');
-% title(hleg1,'Memory=0.2')
 % set(hleg1,'Location','bestoutside','FontSize',11)
 
 set(gca,'FontSize',23)
@@ -167,10 +171,6 @@ xlabel('Time')
 axis([0,T,0,1.03])
 
 subplot(2,3,3)
-% defining blindfriendly colors (red and green)
-
-
-        hold on
 
     set(gca,'YScale','log')
 % 
@@ -193,12 +193,6 @@ set(0, 'DefaultFigurePosition', Pos);
     yticks([10^-2 10^-1 10^0])
 yticklabels({'-2','-1','0'})
 
-    % Remove highlighted bars from the legend
-%     set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
-
-% hleg1=legend('show');
-% title(hleg1,'Memory=0.2')
-
 set(gca,'FontSize',23)
 xlabel('Time')
 axis([0,T,0,1.03])
@@ -210,14 +204,11 @@ axis([0,T,0,1.03])
     h32=patch('Faces',ff,'Vertices',v,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
     hold on
      set(gca,'YScale','log')
-%       p11=semilogy(tt,X08(1,:),'-.','Color',[0,0,1]);
       p11=semilogy(tt,x2(1,:),'Color',[0,0,1]);
     hold on
     set(p11,'LineWidth',4)
-%     p22=semilogy(tt,X08(2,:),'-.','Color',PcR);
     p22=semilogy(tt,x2(2,:),'Color',PcR);
    set(p22,'LineWidth',4)
-%     p=semilogy(tt,X08(3,:),'-.','Color',PcG);set(p,'LineWidth',3)
     p=semilogy(tt,x2(3,:),'Color',PcG);set(p,'LineWidth',4);
     
     axis([0,T,0,1.03])
@@ -305,13 +296,6 @@ set(0, 'DefaultFigurePosition', Pos);
     yticks([10^-2 10^-1 10^0])
 yticklabels({'-2','-1','0'})
 
-    % Remove highlighted bars from the legend
-%     set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
-
-% hleg1=legend('show');
-% title(hleg1,'Memory=0.2')
-% set(hleg1,'Location','bestoutside','FontSize',11)
-
 set(gca,'FontSize',23)
 xlabel('Time')
 axis([0,T,0,1.03])
@@ -343,13 +327,6 @@ set(0, 'DefaultFigurePosition', Pos);
     yticks([10^-2 10^-1 10^0])
 yticklabels({'-2','-1','0'})
 
-    % Remove highlighted bars from the legend
-%     set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
-
-% hleg1=legend('show');
-% title(hleg1,'Memory=0.2')
-% set(hleg1,'Location','bestoutside','FontSize',11)
-
 set(gca,'FontSize',23)
 xlabel('Time')
 axis([0,T,0,1.03])
@@ -361,15 +338,15 @@ axis([0,T,0,1.03])
     h3=patch('Faces',ff,'Vertices',v,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
     hold on
      set(gca,'YScale','log')
-%       p11=semilogy(tt,X08(1,:),'-.','Color',[0,0,1]);
-      p11=semilogy(tt,x22(1,:),'Color',[0,0,1]);
+
+     p11=semilogy(tt,x22(1,:),'Color',[0,0,1]);
     hold on
     set(p11,'LineWidth',4)
-%     p22=semilogy(tt,X08(2,:),'-.','Color',PcR);
+
     p22=semilogy(tt,x22(2,:),'Color',PcR);
    set(p22,'LineWidth',4)
-%     p=semilogy(tt,X08(3,:),'-.','Color',PcG);set(p,'LineWidth',3)
-    p=semilogy(tt,x22(3,:),'Color',PcG);set(p,'LineWidth',4);
+
+   p=semilogy(tt,x22(3,:),'Color',PcG);set(p,'LineWidth',4);
     
     axis([0,T,0,1.03])
     set(gca,'FontSize',23)

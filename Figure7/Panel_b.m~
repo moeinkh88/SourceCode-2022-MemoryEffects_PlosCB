@@ -55,11 +55,9 @@ b=[1, 2]; % growth rates
 % initial conditions
 X0=[.8;.2];
 
-t0=0; % initial time
-h=0.2; % step size for computing
-F=@funGonze; %ODE model
-
-%% solver for fractional differential equation
+t0=0;
+h=.2;
+F=@funGonze;
 
 for j=1:length(p)
     order=p(j)*ones(2,1);
@@ -67,11 +65,9 @@ for j=1:length(p)
 X(j,:,:)=x;
 end
 
-%% plotting
-
+%%
 figure
 
-% relative abundances
 x1(:,:)=X(1,:,:)./sum(X(1,:,:));
 x2(:,:)=X(2,:,:)./sum(X(2,:,:));
 x3(:,:)=X(3,:,:)./sum(X(3,:,:));

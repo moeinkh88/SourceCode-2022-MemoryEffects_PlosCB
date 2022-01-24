@@ -65,7 +65,8 @@ alpha=mu*ones(N,1);
 
 h=0.01; % step size for computing
 
-%% 
+%% Computing
+
 for iR=1:10
     s = RandStream('twister','Seed',10+iR); % seed for generating random number
     RandStream.setGlobalStream(s)

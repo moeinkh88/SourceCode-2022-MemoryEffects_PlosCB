@@ -1,8 +1,10 @@
+%% Figure S13 panel a
 clear 
 clc
 
 global n N Ki b Kij
-%% Coefficients and Conditions
+%% Inputs
+% Coefficients and Conditions
 
 N=2;
 
@@ -21,7 +23,7 @@ b=[1, 2]; % growth rates for cases: False, Pulse, and Periodic
 
 t0=0;
 h=.1;
-F=@funGonze;
+F=@funGonze; %ODE function model 1
 
 %%fix points
 x2 = 1.9987539067056423719997810984789;
@@ -47,7 +49,7 @@ ConvergT(i,j)=t(indx(1))+100;
     end
 end
 
-%%
+%% Plotting
 figure
 
 h=heatmap(1-order1,1-order2,ConvergT');

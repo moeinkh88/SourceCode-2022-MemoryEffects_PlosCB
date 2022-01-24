@@ -1,4 +1,4 @@
-%% Main_ThreeSpecies
+%% Figure S4
 %        ------------------------------------------------------------------
 %                   This code solves a there species microbial community model
 %                   described by fractional differential equations:
@@ -50,10 +50,12 @@
 clear 
 clc
 global n N Ki b Kij 
-%% Coefficients and Conditions
+%% Inputs
+% Coefficients and Conditions
 
-mu1=[1,1,1-.09105]; % [mu_B,mu_R,mu_G] Order of derivatives,  0<mu(i)=<1
-mu2=[1,1,1-.2];
+% [mu_B,mu_R,mu_G] Order of derivatives,  0<mu(i)=<1
+mu1=[1,1,1-.09105];  % for stochastic (panel b)
+mu2=[1,1,1-.2];      % for two pulses (panel a)
 
 n=2; % Hill coefficient
 
@@ -83,9 +85,10 @@ Fun2=@fun3;
 h=0.01; % step size for computing
 
 
-% solver for fractional differential equation
+%% solver for fractional differential equation
 [t, x1] = FDE_PI12_PC(mu1,Fun1,t0,T,x01,h);
 [~, x2] = FDE_PI12_PC(mu2,Fun2,t0,T,x02,h);
+
 %% plotting
 
    %%plotting relative abundance of species

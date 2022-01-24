@@ -1,8 +1,10 @@
+%% Figure S11
 clear 
 clc
 
 global n N Ki b Kij
-%% Coefficients and Conditions
+%% Inputs
+% Coefficients and Conditions
 
 N=2;
 
@@ -57,7 +59,7 @@ toc
     end
 end
 
-%%
+%% plotting
 figure
 
 h=heatmap(1-order1,1-order2,Resistance');

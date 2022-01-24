@@ -67,7 +67,8 @@
 clear 
 clc
 global n N Ki T mu X0 b Kij
-%% Coefficients and Conditions
+%% Inputs 
+% Coefficients and Conditions
                        
 % number of species
 N=15; 

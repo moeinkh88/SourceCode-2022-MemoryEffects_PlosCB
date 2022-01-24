@@ -1,4 +1,4 @@
-%% Main_ThreeSpecies
+%% Figure 3
 %        ------------------------------------------------------------------
 %                   This code solves a there species microbial community model
 %                   described by fractional differential equations:
@@ -6,6 +6,7 @@
 %                   where Fi=\prod[Kik^n/(Kik^n+Xk^n)], k=1,...,N and k~=i
 %                   D is the fractional Caputo derivative and mu is its order  
 %
+%  For a article titled "Quantifying the impact of ecological memory on the dynamics of interacting communities"         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Inputs                   
 %        ------------------------------------------------------------------
@@ -23,7 +24,7 @@
 %        ------------------------------------------------------------------
 %        x0 - Initial conditions, e.g. x0=[1/3;1/3;1/3];
 %        ------------------------------------------------------------------
-%        b - Growth rates for cases: False, Pulse, and Periodic, e.g. b=[1, .95, 1.05];
+%        b - Growth rates (including pulse and Periodic perturbations), e.g. b=[1, .95, 1.05];
 %
 %---------------------------------------
 % Outputs
@@ -39,9 +40,13 @@
 clear 
 clc
 global n N Ki b Kij x0
-%% Coefficients and Conditions
+%% Inputs
+% Coefficients and Conditions
 
-mu=0.96*[1,1,1]; % [mu_B,mu_R,mu_G] Order of derivatives,  0<mu(i)=<1
+% [mu_B,mu_R,mu_G] Order of derivatives,  0<mu(i)=<1
+mu1=[1,1,1]; % for panel b and d, row 1 (no memoey) 
+mu2=0.96*[1,1,1]; % for panel b and d, row 2 (with memoey)
+mu3=0.9*[1,1,1]; % for panel b and d, row 3 (with memoey)
 
 n=2; % Hill coefficient
 
@@ -52,42 +57,42 @@ Kij=0.1*ones(N); % interaction matrix
 Ki=1*ones(N,1); % death rate
 
 T1=450; %  final time
-T2=700; %  final time
+T2=720; %  final time
 
 b=[1, .95, 1.05]; % growth rates for cases: False, Pulse, and Periodic
 
-x0=[.99,.01,.01]'; % initial conditions
+x0=[.99;.01;.01]; % initial conditions
 
 t0=0; % initial time
 h=0.01; % step size for computing
 
-Fun1=@fun13;
-Fun2=@fun2;
+Fun1=@fun13; % ODE model including a pulse for panel b 
+Fun2=@fun2;  % ODE model including a pulse for panel d
+
 % solver for fractional differential equation
-[t1, x1] = FDE_PI12_PC(mu,Fun1,t0,T1,x0,h);
-[t2, x2] = FDE_PI12_PC(mu,Fun2,t0,T2,x0,h);
-% [~, x3] = FDE_PI12_PC(mu3,Fun1,t0,T1,x0,h);
-% [~, x12] = FDE_PI12_PC(mu1,Fun1,t0,T2,x0,h);
-% [~, x22] = FDE_PI12_PC(mu2,Fun2,t0,T2,x0,h);
-% [~, x32] = FDE_PI12_PC(mu3,Fun2,t0,T2,x0,h);
+[t1, x1] = FDE_PI12_PC(mu1,Fun1,t0,T1,x0,h); % results for panel b row 1
+[t2, x2] = FDE_PI12_PC(mu1,Fun2,t0,T2,x0,h); % results for panel d row 1
+[~, x12] = FDE_PI12_PC(mu2,Fun1,t0,T1,x0,h); % results for panel b row 2
+[~, x22] = FDE_PI12_PC(mu2,Fun2,t0,T2,x0,h); % results for panel d row 2
+[~, x13] = FDE_PI12_PC(mu3,Fun1,t0,T1,x0,h); % results for panel b row 3
+[~, x23] = FDE_PI12_PC(mu3,Fun2,t0,T2,x0,h); % results for panel d row 3
 %% plotting
 
 RelX1=x1./(ones(N,1)*sum(x1)); % Relative abundances
 RelX2=x2./(ones(N,1)*sum(x2));
-% RelX3=x3./(ones(N,1)*sum(x3));
-% RelX12=x12./(ones(N,1)*sum(x12));
-% RelX22=x22./(ones(N,1)*sum(x22));
-% RelX32=x32./(ones(N,1)*sum(x32));
+RelX12=x12./(ones(N,1)*sum(x12));
+RelX22=x22./(ones(N,1)*sum(x22));
+RelX13=x13./(ones(N,1)*sum(x13));
+RelX23=x23./(ones(N,1)*sum(x23));
 
 % defining blindfriendly colors (red and green)
 PcR= [0.92,0.27,0.18];
 PcG= [0.18,0.40,0.14];
-    
-%     case 'Pulse3'
-        
-%% Plot of growth rate with pulse        
+            
+%% Plot of growth rate with pulse (panel a)
   f1=figure;
 f1.Renderer='painters';
+
     tt=0:.1:T1;Nt=length(tt); % time simulating with 0.1 step size
         
     % Simulate growth rates with pulse
@@ -107,16 +112,16 @@ f1.Renderer='painters';
     % Highlight background as perturbation
     vb = [60 .2; 100 .2; 100 4.5; 60 4.5];
     f = [1 2 3 4];
-    h11=patch('Faces',f,'Vertices',vb,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
+    patch('Faces',f,'Vertices',vb,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
     hold on
     v1b = [200 0.2; 330 0.2; 330 4.5; 200 4.5];
-    h22=patch('Faces',f,'Vertices',v1b,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.36);
+    patch('Faces',f,'Vertices',v1b,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.36);
     set(gca,'YScale','log')
     
-   pb1=semilogy(tt,BB,'Color',[0,0,1],'LineWidth',4);
+    semilogy(tt,BB,'Color',[0,0,1],'LineWidth',4);
     hold on
-    pb2=semilogy(tt,RR,'Color',PcR,'LineWidth',4);
-    pb3=semilogy(tt,GG,'Color',PcG,'LineWidth',4);
+    semilogy(tt,RR,'Color',PcR,'LineWidth',4);
+    semilogy(tt,GG,'Color',PcG,'LineWidth',4);
 %     Settings for plot
 axis tight
     
@@ -126,10 +131,9 @@ axis tight
     legend('Perturbation1: b_{B}=0.2','Perturbation2: b_{B}=4.5','b_B\approx1','b_R=0.95', 'b_G=1.05')
     set(gca,'FontSize',23, 'FontWeight', 'bold')
 
-%%        ------------------------------------------------------------------    
-%     case 'Periodic'
- f1=figure;
-f1.Renderer='painters';
+%%  Plot of growth rate with 'Periodic' perturbations (panel c)
+ f12=figure;
+ f12.Renderer='painters';
     %%plot of growth rate with periodic perturbation
     
     tt=0:.1:T2;Nt=length(tt); % time simulating with 0.1 step size 
@@ -165,10 +169,10 @@ f1.Renderer='painters';
     
     % plot (log) of growth rates
      
-    pb1=semilogy(tt,BB,'Color',[0,0,1],'LineWidth',4);
+    semilogy(tt,BB,'Color',[0,0,1],'LineWidth',4);
     hold on
-    pb2=semilogy(tt,RR,'Color',PcR,'LineWidth',4);
-    pb3=semilogy(tt,GG,'Color',PcG,'LineWidth',4);
+    semilogy(tt,RR,'Color',PcR,'LineWidth',4);
+    semilogy(tt,GG,'Color',PcG,'LineWidth',4);
     axis tight
 
     % Settings for plot
@@ -177,33 +181,82 @@ f1.Renderer='painters';
     legend('Perturbation1: b_{B}=0.2','Perturbation2: b_{B}=4.5','b_B\approx1','b_R=0.95', 'b_G=1.05')
     set(gca,'FontSize',23, 'FontWeight', 'bold')
 
-%%
- %%plotting relative abundance of species
-  f1=figure;
-f1.Renderer='painters';
+%% plotting relative abundance of species for panel b (pulse) row 1
+ 
+  f13=figure;
+  f13.Renderer='painters';
 
     v = [60 0; 100 0; 100 1; 60 1];
     v1 = [200 0; 330 0; 330 1; 200 1];
     f = [1 2 3 4];
-    h1=patch('Faces',f,'Vertices',v,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
+    patch('Faces',f,'Vertices',v,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
     hold on
-    h2=patch('Faces',f,'Vertices',v1,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.36);
+    patch('Faces',f,'Vertices',v1,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.36);
     
     % Plot the relative abundances
-     pb1=semilogy(t1,RelX1(1,:),'Color',[0,0,1],'LineWidth',4);
+    semilogy(t1,RelX1(1,:),'Color',[0,0,1],'LineWidth',4);
     hold on
-    pb2=semilogy(t1,RelX1(2,:),'Color',PcR,'LineWidth',4);
-    pb3=semilogy(t1,RelX1(3,:),'Color',PcG,'LineWidth',4);
+    semilogy(t1,RelX1(2,:),'Color',PcR,'LineWidth',4);
+    semilogy(t1,RelX1(3,:),'Color',PcG,'LineWidth',4);
     
     % Remove highlighted bars from the legend
 %     set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
 %     set(get(get(h2,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
        ylabel('Relative abundance')    
      xlabel('Time')
+       set(gca,'FontSize',17, 'FontWeight', 'bold')
+%% plotting relative abundance of species for panel b (pulse) row 2
+ 
+  f132=figure;
+  f132.Renderer='painters';
+
+    v = [60 0; 100 0; 100 1; 60 1];
+    v1 = [200 0; 330 0; 330 1; 200 1];
+    f = [1 2 3 4];
+    patch('Faces',f,'Vertices',v,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
+    hold on
+    patch('Faces',f,'Vertices',v1,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.36);
     
-%%    %%plotting relative abundance of species
-    f1=figure;
-f1.Renderer='painters';        
+    % Plot the relative abundances
+    semilogy(t1,RelX12(1,:),'Color',[0,0,1],'LineWidth',4);
+    hold on
+    semilogy(t1,RelX12(2,:),'Color',PcR,'LineWidth',4);
+    semilogy(t1,RelX12(3,:),'Color',PcG,'LineWidth',4);
+    
+    % Remove highlighted bars from the legend
+%     set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+%     set(get(get(h2,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+       ylabel('Relative abundance')    
+     xlabel('Time')
+       set(gca,'FontSize',17, 'FontWeight', 'bold')
+%% plotting relative abundance of species for panel b (pulse) row 3
+ 
+  f133=figure;
+  f133.Renderer='painters';
+
+    v = [60 0; 100 0; 100 1; 60 1];
+    v1 = [200 0; 330 0; 330 1; 200 1];
+    f = [1 2 3 4];
+    patch('Faces',f,'Vertices',v,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
+    hold on
+    patch('Faces',f,'Vertices',v1,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.36);
+    
+    % Plot the relative abundances
+    semilogy(t1,RelX13(1,:),'Color',[0,0,1],'LineWidth',4);
+    hold on
+    semilogy(t1,RelX13(2,:),'Color',PcR,'LineWidth',4);
+    semilogy(t1,RelX13(3,:),'Color',PcG,'LineWidth',4);
+    
+    % Remove highlighted bars from the legend
+%     set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+%     set(get(get(h2,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+       ylabel('Relative abundance')    
+     xlabel('Time')
+       set(gca,'FontSize',17, 'FontWeight', 'bold')
+    
+%% plotting relative abundance of species for panel d (periodic) row 1
+    f10=figure;
+f10.Renderer='painters';        
     
     % Highlight background as perturbation
     m=ceil(mod(T2/(mm*4),mm));
@@ -218,10 +271,10 @@ f1.Renderer='painters';
     h2=patch('Faces',ff,'Vertices',v1,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.36);
     
     % Plot the relative abundances
-      pb1=semilogy(t2,RelX2(1,:),'Color',[0,0,1],'LineWidth',4);
+    semilogy(t2,RelX2(1,:),'Color',[0,0,1],'LineWidth',4);
     hold on
-    pb2=semilogy(t2,RelX2(2,:),'Color',PcR,'LineWidth',4);
-    pb3=semilogy(t2,RelX2(3,:),'Color',PcG,'LineWidth',4);
+    semilogy(t2,RelX2(2,:),'Color',PcR,'LineWidth',4);
+    semilogy(t2,RelX2(3,:),'Color',PcG,'LineWidth',4);
 %     
 %     
     set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
@@ -232,7 +285,84 @@ f1.Renderer='painters';
 set(gca,'FontSize',23, 'FontWeight', 'bold')
 xlabel('Time')
 
+axis tight 
+
+% % Generate legend for showing memory of each species
+legend(['X_{B}/X_{total}, Memory_B=',num2str(1-mu1(1))],...
+    ['X_{R}/X_{total}, Memory_R=',num2str(1-mu1(2))],...
+    ['X_{G}/X_{total}, Memory_G=',num2str(1-mu1(3))],'Location', 'Best');
+
+%% plotting relative abundance of species for panel d (periodic) row 2
+    f14=figure;
+f14.Renderer='painters';        
+    
+    % Highlight background as perturbation
+    m=ceil(mod(T2/(mm*4),mm));
+    v=zeros(4*m,2);
+    v1=zeros(4*m,2);
+    for i=1:m    
+        v(4*i-3:i*4,:)=[mm*(4*i-3) 0; mm*(4*i-2) 0; mm*(4*i-2) 1; mm*(4*i-3) 1];
+        v1(4*i-3:i*4,:)=[mm*(4*i-1) 0; mm*(4*i) 0; mm*(4*i) 1; mm*(4*i-1) 1];
+    end
+    h1=patch('Faces',ff,'Vertices',v,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
+    hold on
+    h2=patch('Faces',ff,'Vertices',v1,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.36);
+    
+    % Plot the relative abundances
+    semilogy(t2,RelX22(1,:),'Color',[0,0,1],'LineWidth',4);
+    hold on
+    semilogy(t2,RelX22(2,:),'Color',PcR,'LineWidth',4);
+    semilogy(t2,RelX22(3,:),'Color',PcG,'LineWidth',4);
+%     
+%     
+    set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+    set(get(get(h2,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+       ylabel('Relative abundance')
+
+% Settings for the general plot
+set(gca,'FontSize',23, 'FontWeight', 'bold')
+xlabel('Time')
+
+axis tight 
+
 % % Generate legend for showing memory of each species
 legend(['X_{B}/X_{total}, Memory_B=',num2str(1-mu2(1))],...
     ['X_{R}/X_{total}, Memory_R=',num2str(1-mu2(2))],...
     ['X_{G}/X_{total}, Memory_G=',num2str(1-mu2(3))],'Location', 'Best');
+%% plotting relative abundance of species for panel d (periodic) row 3
+    f15=figure;
+f15.Renderer='painters';        
+    
+    % Highlight background as perturbation
+    m=ceil(mod(T2/(mm*4),mm));
+    v=zeros(4*m,2);
+    v1=zeros(4*m,2);
+    for i=1:m    
+        v(4*i-3:i*4,:)=[mm*(4*i-3) 0; mm*(4*i-2) 0; mm*(4*i-2) 1; mm*(4*i-3) 1];
+        v1(4*i-3:i*4,:)=[mm*(4*i-1) 0; mm*(4*i) 0; mm*(4*i) 1; mm*(4*i-1) 1];
+    end
+    h1=patch('Faces',ff,'Vertices',v,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.16);
+    hold on
+    h2=patch('Faces',ff,'Vertices',v1,'FaceColor','k','EdgeColor','non', 'FaceAlpha',.36);
+    
+    % Plot the relative abundances
+    semilogy(t2,RelX23(1,:),'Color',[0,0,1],'LineWidth',4);
+    hold on
+    semilogy(t2,RelX23(2,:),'Color',PcR,'LineWidth',4);
+    semilogy(t2,RelX23(3,:),'Color',PcG,'LineWidth',4);
+%     
+%     
+    set(get(get(h1,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+    set(get(get(h2,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+       ylabel('Relative abundance')
+
+% Settings for the general plot
+set(gca,'FontSize',23, 'FontWeight', 'bold')
+xlabel('Time')
+
+axis tight 
+
+% % Generate legend for showing memory of each species
+legend(['X_{B}/X_{total}, Memory_B=',num2str(1-mu3(1))],...
+    ['X_{R}/X_{total}, Memory_R=',num2str(1-mu3(2))],...
+    ['X_{G}/X_{total}, Memory_G=',num2str(1-mu3(3))],'Location', 'Best');

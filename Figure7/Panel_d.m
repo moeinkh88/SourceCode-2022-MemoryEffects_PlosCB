@@ -1,24 +1,28 @@
-%% CH ER 
+%% Figure 7 panel d
+% CH ER 
 clear 
 clc
-%%
+
 global A mu
 
+%% Inputs
 
-p=1:-.1:.6;
+p=1:-.1:.6; % order of derivatives
 
-X0= [0.4; 0.2];
-mu=[.468 0.151];
+X0= [0.4; 0.2]; % initial conditions
+mu=[.468 0.151]; % growth rates
 
-t0=0;
-T=20;
-h=.1;
-F=@fun;
-JF=@Jfun;
+t0=0; % intial time
+T=20; % final time
+h=.1; % step size for computing
+F=@fun; % ODE funcion described by Venturelli et. al. (https://doi.org/10.15252/msb.20178157)
+JF=@Jfun; % Jacobian of ODE
 
 
-A=[-1.242 -.508; 1.191 -1.3219];
+A=[-1.242 -.508; 1.191 -1.3219]; % interaction coefficients
 
+
+%% Solver for fractional differential equation 
 for j=1:length(p)
     order=p(j)*ones(2,1);
 [t,x]=FDE_PI2_IM(order,F,JF,t0,T,X0,h);
@@ -26,10 +30,10 @@ X(j,:,:)=x;
 
 end
 
-%%
-%%
+%% plotting
 figure
 
+% relative abundances
 x1(:,:)=X(1,:,:)./sum(X(1,:,:));
 x2(:,:)=X(2,:,:)./sum(X(2,:,:));
 x3(:,:)=X(3,:,:)./sum(X(3,:,:));

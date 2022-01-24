@@ -1,4 +1,4 @@
-%% Figure 3
+%% Main_Ternary
 % -------------------------------------------------------------------------
 %                   This code several times solves an N species microbial community model
 %                   described by fractional differential equations:
@@ -49,7 +49,7 @@ clear
 clc
 global n N Ki
 
-%% Inputs
+%% Input
 % Coefficients and Conditions
 
 %number of samples

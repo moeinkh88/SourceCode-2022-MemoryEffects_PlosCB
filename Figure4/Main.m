@@ -1,4 +1,4 @@
-%% Main_ThreeSpecies
+%% Figure 4
 %        ------------------------------------------------------------------
 %                   This code solves a there species microbial community model
 %                   described by fractional differential equations:
@@ -6,6 +6,7 @@
 %                   where Fi=\prod[Kik^n/(Kik^n+Xk^n)], k=1,...,N and k~=i
 %                   D is the fractional Caputo derivative and mu is its order  
 %
+%  For a article titled "Quantifying the impact of ecological memory on the dynamics of interacting communities"         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Inputs                   
 %        ------------------------------------------------------------------
@@ -23,18 +24,7 @@
 %        ------------------------------------------------------------------
 %        x0 - Initial conditions, e.g. x0=[1/3;1/3;1/3];
 %        ------------------------------------------------------------------
-%        Perturbation - This is changes of the species growth rates, e.g. Perturbation='OUP';
-%                       Possible usages 'False', 'Pulse, 'Periodic', 'OUP', and 'OUP_new'                      
-%                       False: No perturbation
-%                       Pulse1: A pulse in (20,60) for Figure 2a
-%                       Pulse2: Similar to Pulse1 with a greater strength for Figure 2b
-%                       Pulse3: Two pulses in (60,100) and (200,330) for Figure 3a
-%                       Pulse4: Two pulses in (60,100) and (400,530) for Figure S2a
-%                       Periodic: Periodic perturbation with 20 span for Figure 3b
-%                       OUP: Stochastic pertubation used in the paper; requirement: T=<700, For Figure 4b-c & S2b                          
-%                       OUP_new: New generating stochastic perturbation
-%        ------------------------------------------------------------------
-%        b - Growth rates for cases: False, Pulse, and Periodic, e.g. b=[1, .95, 1.05];
+%        b - Growth rates (including stochastic perturbations), e.g. b=[1, .95, 1.05];
 %
 %---------------------------------------
 % Outputs
@@ -49,10 +39,12 @@
 
 clear 
 clc
-global n N Ki b Kij T x0
+global n N Ki b Kij T x0 bb
 %% Coefficients and Conditions
 
-mu=0.9*[1,1,1]; % [mu_B,mu_R,mu_G] Order of derivatives,  0<mu(i)=<1
+%memory values
+Memory=[0;.1;.2;.3;.4;0.0842041;0.0842046;0.0842048]; 
+mu=ones(1,3)-Memory; % order of derivatives 
 
 n=2; % Hill coefficient
 
@@ -64,27 +56,29 @@ Ki=1*ones(N,1); % death rate
 
 T=700; %  final time
 
-Perturbation='OUP'; % Possible usages 'False', 'Pulse1', 'Pulse2', 'Pulse3', 'Pulse4', 'Periodic', 'OUP', and 'OUP_new'
-
-b=[1, .95, 1.05]; % growth rates for cases: False, Pulse, and Periodic
-
 x0=1/3*[1,1,1]'; % initial conditions
 
 Fun=@fun3;
         clear b        
-        load('b3OUP.mat');
+        load('b3OUP.mat'); % growth rates are generated under an oup process
         bb=@(t,N)b(t,N);
         B=b;
         
         t0=0; % initial time
 h=0.01; % step size for computing
 
-
 % solver for fractional differential equation
-[t, x] = FDE_PI12_PC(mu,Fun,t0,T,x0,h);
+for i=1:length(Memory)
+
+[t, x] = FDE_PI12_PC(mu(i,:),Fun,t0,T,x0,h);
+X(i,:,:)=x;
+
+end
 
 %% plotting
-
+x=zeros(3,length(t));
+for i=1:length(Memory)
+x(:,:)=X(i,:,:);
 RelX=x./(ones(N,1)*sum(x)); % Relative abundances
 
 f=figure;
@@ -93,8 +87,30 @@ f.Renderer='painters';
 % defining blindfriendly colors (red and green)
 PcR= [0.92,0.27,0.18];
 PcG= [0.18,0.40,0.14];
-        
-    %%plot of growth rate with stochastic perturbation
+          
+    %%plotting relative abundance of species
+       
+            p=plot(t,RelX(1,:),'b',t,RelX(2,:),'r',t,RelX(3,:),'g');
+       ylabel('Relative abundance')
+
+
+% Settings for the general plot
+set(p,'LineWidth',5)
+set(gca,'FontSize',23, 'FontWeight', 'bold')
+xlabel('Time')
+
+% % Generate legend for showing memory of each species
+legend(['X_{B}/X_{total}, Memory_B=',num2str(1-mu(i,1))],...
+    ['X_{R}/X_{total}, Memory_R=',num2str(1-mu(i,2))],...
+    ['X_{G}/X_{total}, Memory_G=',num2str(1-mu(i,3))],'Location', 'Best');
+
+axis([0,700,0,1])
+end
+
+  %%plot of growth rate with stochastic perturbation
+
+f=figure;
+f.Renderer='painters';
     
     tt=1:T; % time simulating with 1 step size  
     
@@ -108,22 +124,4 @@ PcG= [0.18,0.40,0.14];
     xlabel('Time')
     legend('b_B','b_R', 'b_G')
     set(gca,'FontSize',23, 'FontWeight', 'bold')
-    
-    %%plotting relative abundance of species
-       figure
-            p=plot(t,RelX(1,:),'b',t,RelX(2,:),'r',t,RelX(3,:),'g');
-       ylabel('Relative abundance')
-
-
-% Settings for the general plot
-set(p,'LineWidth',5)
-set(gca,'FontSize',23, 'FontWeight', 'bold')
-xlabel('Time')
-
-% % Generate legend for showing memory of each species
-legend(['X_{B}/X_{total}, Memory_B=',num2str(1-mu(1))],...
-    ['X_{R}/X_{total}, Memory_R=',num2str(1-mu(2))],...
-    ['X_{G}/X_{total}, Memory_G=',num2str(1-mu(3))],'Location', 'Best');
-
-
-
+  

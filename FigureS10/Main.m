@@ -1,7 +1,8 @@
-%% BU BT
+%% Figure S10
+% BU BT
 clear 
 clc
-%%
+%% Inputs
 global A mu
 
 order1=1:-.02:.84;
@@ -44,7 +45,7 @@ ConvergT(i,j)=t(indx(1));
     end
 end
 
-%%
+%% plotting
 
 figure
 h=heatmap(1-order1,1-order2,ConvergT');
