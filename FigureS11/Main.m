@@ -21,8 +21,8 @@ T=250; %  final time
 
 b=[1, 2]; % growth rates for cases: False, Pulse, and Periodic
 
-t0=0;
-h=.2;
+t0=0; % initial time
+h=.2; % step size for computing
 F=@funGonze;
 
 %%fix points

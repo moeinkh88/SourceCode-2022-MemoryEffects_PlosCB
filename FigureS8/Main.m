@@ -5,19 +5,19 @@ clc
 %% Inputs
 global A mu
 
-order1=1:-.01:.9;
-order2=1:-.01:.9;
-X0= [0.4; 0.2];
-mu=[.468 0.151];
+order1=1:-.01:.9; % order of derivatives for CH
+order2=1:-.01:.9; % order of derivatives for ER
+X0= [0.4; 0.2]; % initial abundances
+mu=[.468 0.151]; % growth rates
 
-t0=0;
-T=1600;
-h=.1;
-F=@fun;
-JF=@Jfun;
+t0=0; % initial time
+T=1600; % final time 
+h=.1; % step size for computing
+F=@fun; % ODE funcion described by Venturelli et. al. (https://doi.org/10.15252/msb.20178157)
+JF=@Jfun; % Jacobian of ODE
 
 
-A=[-1.242 -.508; 1.191 -1.3219];
+A=[-1.242 -.508; 1.191 -1.3219]; % interaction matrix
 
 %% fix points
 xx1=[(A(1,2)*mu(2)-A(2,2)*mu(1))/(A(1,1)*A(2,2)-A(1,2)*A(2,1)),...

@@ -1,4 +1,4 @@
-%% Figure 7 panel e
+%% Figure 7 panel f
 % BT CH
 clear 
 clc
@@ -18,8 +18,10 @@ h=.1; % step size for computing
 F=@fun; % ODE funcion described by Venturelli et. al. (https://doi.org/10.15252/msb.20178157)
 JF=@Jfun; % Jacobian of ODE
 
+A=[-0.9597 -0.0727; -0.5906 -1.242]; % interaction coefficients
 
-A=[-0.9597 -0.0727; -0.5906 -1.242];
+
+%% Solver for fractional differential equation
 
 for j=1:length(p)
     order=p(j)*ones(2,1);
@@ -28,7 +30,8 @@ X(j,:,:)=x;
 
 end
 
-%%
+%% plotting
+
 figure
 
 x1(:,:)=X(1,:,:)./sum(X(1,:,:));

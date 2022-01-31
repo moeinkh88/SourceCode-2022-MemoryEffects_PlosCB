@@ -1,105 +1,32 @@
 %% Figure 7 panel b
-%        ------------------------------------------------------------------
-%                   This code solves a there species microbial community model
-%                   described by fractional differential equations:
-%                   D^mu(Xi)=X_i(bi.Fi-ki.Xi)
-%                   where Fi=\prod[Kik^n/(Kik^n+Xk^n)], k=1,...,N and k~=i
-%                   D is the fractional Caputo derivative and mu is its order  
-%
-%  For a article titled "Quantifying the impact of ecological memory on the dynamics of interacting communities"         
+% This code solve a logistic growth curve with memory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Inputs                   
-%        ------------------------------------------------------------------
-%        mu - Order of derivatives, [mu_B,mu_R,mu_G]  0<mu(i)=<1, e.g. mu=[1,.2,1];
-%        ------------------------------------------------------------------
-%        n -  Hill coefficient, e.g. n=2;
-%        ------------------------------------------------------------------
-%        N -  Number of Species, e.g. N=3;
-%        ------------------------------------------------------------------
-%        Kij - Interation matrix, e.g. Kij=0.1*ones(N);
-%        ------------------------------------------------------------------
-%        Ki - Death rate, e.g. Ki=1*ones(N,1);
-%        ------------------------------------------------------------------
-%        T - Final time, e.g. T=600;
-%        ------------------------------------------------------------------
-%        x0 - Initial conditions, e.g. x0=[1/3;1/3;1/3];
-%        ------------------------------------------------------------------
-%        b - Growth rates (including pulse perturbations), e.g. b=[1, .95, 1.05];
-%
-%---------------------------------------
-% Outputs
-%        t - Simulated time interval
-%        x - Species abundances 
 
-clear 
 clc
+clear
 
-global n N Ki b Kij
 %% Inputs
-% Coefficients and Conditions
-
-N=2;
-
-p=1:-.1:.6; % order of derivatives
-
-n=2; % Hill coefficient
-
-Kij=0.1*ones(2); % interaction matrix
-
-Ki=1*ones(N,1); % death rate
-
-T=300; %  final time
-
-b=[1, 2]; % growth rates
-
-% initial conditions
-X0=[.8;.2];
-
+F=@fun1; % logistic growth model 
+mu=1:-.1:.6; % order of derivative
+h=0.01; % step size for comuting
 t0=0; % initial time
-h=0.2; % step size for computing
-F=@funGonze; %ODE model
-
+T=10; %  final time
+x0=.1; % initial condition
+ 
 %% solver for fractional differential equation
-
-for j=1:length(p)
-    order=p(j)*ones(2,1);
-[t,x]=FDE_PI12_PC(order,F,t0,T,X0,h);
-X(j,:,:)=x;
+for i=1:length(mu)
+    [t,x] = FDE_PI12_PC(mu(i),F,t0,T,x0,h);
+    X(i,:)=x;
 end
 
 %% plotting
-
 figure
-
-% relative abundances
-x1(:,:)=X(1,:,:)./sum(X(1,:,:));
-x2(:,:)=X(2,:,:)./sum(X(2,:,:));
-x3(:,:)=X(3,:,:)./sum(X(3,:,:));
-x4(:,:)=X(4,:,:)./sum(X(4,:,:));
-x5(:,:)=X(5,:,:)./sum(X(5,:,:));
-hold on
-p1=plot(t,x1(1,:),'Color',[0,0,.7],'LineWidth',3,'DisplayName','0');
-p2=plot(t,x2(1,:),'Color',[0,0,.9],'LineWidth',3,'DisplayName','0.1');
-p3=plot(t,x3(1,:),'Color',[0,0.5,1],'LineWidth',3,'DisplayName','0.2');
-p4=plot(t,x4(1,:),'Color',[0,.7,1],'LineWidth',3,'DisplayName','0.3');
-p5=plot(t,x5(1,:),'Color',[0,.9,1],'LineWidth',3,'DisplayName','0.4');
-
-p6=plot(t,x1(2,:),'Color',[.4,0,0],'LineWidth',3,'DisplayName','0');
-p7=plot(t,x2(2,:),'Color',[.6,0,0],'LineWidth',3,'DisplayName','0.1');
-p8=plot(t,x3(2,:),'Color',[.8,0,0],'LineWidth',3,'DisplayName','0.2');
-p9=plot(t,x4(2,:),'Color',[1,0,0],'LineWidth',3,'DisplayName','0.3'); 
-p10=plot(t,x5(2,:),'Color',[1,.3,0],'LineWidth',3,'DisplayName','0.4');
-
-set(gca,'FontSize',14)
-
-
-
+p1=plot(t,X);
 xlabel('Time')
-ylabel('Relative abundance')
-
+ylabel('Logistic growth curve')
+set(p1,'LineWidth',3)
 set(gca,'FontSize',14)
-% legend('0','0.1','0.2', '0.3', '0.4')
+legend('0','0.1','0.2', '0.3', '0.4')
 
 leg = legend('show');
-title(leg,'X1    \mu   X2   \mu ')
-leg.NumColumns = 2;
+title(leg,'Memory')

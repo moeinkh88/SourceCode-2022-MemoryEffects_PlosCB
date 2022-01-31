@@ -5,18 +5,18 @@ clc
 %% Inputs
 global A mu
 
-order1=1:-.01:.9;
-order2=1:-.01:.9;
-X0= [0.158; 0.8];
-mu=[.626 0.468];
+order1=1:-.01:.9; % order of derivatives for BT
+order2=1:-.01:.9; % order of derivatives for CH
+X0= [0.158; 0.8]; % initial conditions
+mu=[.626 0.468]; % growth rates
 
-t0=0;
-T=1700;
-h=.1;
-F=@fun;
-JF=@Jfun;
+t0=0; % intial time
+T=1700; %final time
+h=.1; % step size for computing
+F=@fun; % ODE funcion described by Venturelli et. al. (https://doi.org/10.15252/msb.20178157)
+JF=@Jfun; % Jacobian of ODE
 
-A=[-0.9597 -0.0727; -0.5906 -1.242];
+A=[-0.9597 -0.0727; -0.5906 -1.242];% interaction coefficients
 
 %% fix points
 xx1=[(A(1,2)*mu(2)-A(2,2)*mu(1))/(A(1,1)*A(2,2)-A(1,2)*A(2,1)),...
