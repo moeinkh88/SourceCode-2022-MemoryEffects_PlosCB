@@ -1,4 +1,4 @@
-%% Figure S6
+%% Figure S16
 %   We consider here a 15-species community with equal interactions between 
 %   species and identical initial abundances for all species, where species 
 %   growth rates are drawn from N(1,0.01).

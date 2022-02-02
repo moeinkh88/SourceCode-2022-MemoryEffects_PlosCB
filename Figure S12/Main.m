@@ -1,4 +1,4 @@
-%% Figure 3
+%% Figure S12
 % -------------------------------------------------------------------------
 %                   This code several times solves an N species microbial community model
 %                   described by fractional differential equations:

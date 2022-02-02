@@ -1,4 +1,4 @@
-%% Figure 7 panel c
+%% Figure S3 panel a and b
 %        ------------------------------------------------------------------
 %                   This code solves a there species microbial community model
 %                   described by fractional differential equations:
@@ -54,6 +54,7 @@ b=[1, 2]; % growth rates
 
 % initial conditions
 X0=[.8;.2];
+% X0=[0.9;0.15];
 
 t0=0; % initial time
 h=0.2; % step size for computing
@@ -69,14 +70,17 @@ end
 
 %% plotting
 
-figure
+f1=figure;
+f1.Renderer='painters';
 
 % relative abundances
-x1(:,:)=X(1,:,:)./sum(X(1,:,:));
-x2(:,:)=X(2,:,:)./sum(X(2,:,:));
-x3(:,:)=X(3,:,:)./sum(X(3,:,:));
-x4(:,:)=X(4,:,:)./sum(X(4,:,:));
-x5(:,:)=X(5,:,:)./sum(X(5,:,:));
+x1(:,:)=X(1,:,:)./sum(X(1,:,:));x1=x1(:,1:10:end);
+x2(:,:)=X(2,:,:)./sum(X(2,:,:));x2=x2(:,1:10:end);
+x3(:,:)=X(3,:,:)./sum(X(3,:,:));x3=x3(:,1:10:end);
+x4(:,:)=X(4,:,:)./sum(X(4,:,:));x4=x4(:,1:10:end);
+x5(:,:)=X(5,:,:)./sum(X(5,:,:));x5=x5(:,1:10:end);
+t=t(:,1:10:end);
+
 hold on
 p1=plot(t,x1(1,:),'Color',[0,0,.7],'LineWidth',3,'DisplayName','0');
 p2=plot(t,x2(1,:),'Color',[0,0,.9],'LineWidth',3,'DisplayName','0.1');
@@ -95,7 +99,7 @@ set(gca,'FontSize',14)
 
 
 xlabel('Time')
-ylabel('Relative abundance')
+ylabel('Abundance')
 
 set(gca,'FontSize',14)
 % legend('0','0.1','0.2', '0.3', '0.4')

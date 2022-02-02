@@ -1,4 +1,4 @@
-%% Figure S13 panel a
+%% Figure S8
 clear 
 clc
 
@@ -17,42 +17,52 @@ Kij=0.1*ones(2); % interaction matrix
 
 Ki=1*ones(N,1); % death rate
 
-T=500; %  final time
+T=250; %  final time
 
 b=[1, 2]; % growth rates for cases: False, Pulse, and Periodic
 
-t0=0;
-h=.1;
-F=@funGonze; %ODE function model 1
+t0=0; % initial time
+h=.2; % step size for computing
+F=@funGonze;
 
 %%fix points
 x2 = 1.9987539067056423719997810984789;
 x1=100.*x2.^4 - 200.*x2.^3 + x2.^2 - 2.*x2 + 1;
 
 X0=[x1; x2]; % initial conditions
-p=34;
+
 
 M1=length(order1);
 M2=length(order2);
-ConvergT=zeros(M1,M2);
+Resistance=zeros(M1,M2);
 
-IndxP=100/h;
+
 
 for i=1:M1
     for j=1:M2
-        
+        tic
+        p=34.5; %perturb
+while 1
 [t,X]=FDE_PI12_PC([order1(i),order2(j)],F,t0,T,X0,h,p);
 
-% indx=find(braycd(X(:,IndxP:end),X0)<1e-6);
-indx=find(braycd(X(:,IndxP:end),X0)<2e-2);
-ConvergT(i,j)=t(indx(1))+100;
+Df=diff(X(:,end-1:end)');
+
+if Df(1)<=0 && Df(2)>=0
+    p=p+0.1;
+else
+    Resistance(i,j)=p-0.1;
+    break
+end
+
+end
+toc
     end
 end
 
-%% Plotting
+%% plotting
 figure
 
-h=heatmap(1-order1,1-order2,ConvergT');
+h=heatmap(1-order1,1-order2,Resistance');
 h.XLabel = 'Memory of X_B';
 h.YLabel = 'Memory of X_R';
 

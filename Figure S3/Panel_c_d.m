@@ -1,4 +1,4 @@
-%% Figure 7 panel d
+%% Figure S3 panel c and d
 % BT BU  
 clear 
 clc
@@ -31,7 +31,8 @@ end
 
 
 %% plotting
-figure
+f1=figure;
+f1.Renderer='painters';
 
 %relative abundances
 x1(:,:)=X(1,:,:)./sum(X(1,:,:));x1=x1(:,1:20:end);
@@ -58,7 +59,7 @@ set(gca,'FontSize',14)
 
 
 xlabel('Time')
-ylabel('Relative abundance')
+ylabel('Abundance')
 
 set(gca,'FontSize',14)
 % legend('0','0.1','0.2', '0.3', '0.4')
